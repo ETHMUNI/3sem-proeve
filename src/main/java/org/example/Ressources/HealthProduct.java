@@ -35,9 +35,9 @@ public class HealthProduct {
     private String description;
 
     @Column(name = "expire_date")
-    private LocalDate expireDate;  // Added this field
+    private LocalDate expireDate;
 
-    @ManyToOne(fetch = FetchType.LAZY)  // Set fetching to LAZY
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "storage_id")
     private Storage storage;
 
@@ -47,6 +47,6 @@ public class HealthProduct {
         this.calories = calories;
         this.price = price;
         this.description = description;
-        this.expireDate = expireDate;  // Initialize the new field
+        this.expireDate = expireDate;
     }
 }

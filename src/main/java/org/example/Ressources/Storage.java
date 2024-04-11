@@ -32,7 +32,7 @@ public class Storage {
     @Column(name = "shelf_number", nullable = false)
     private int shelfNumber;
 
-    @OneToMany(mappedBy = "storage", cascade = CascadeType.ALL, fetch = FetchType.LAZY)  // Changed to LAZY loading
+    @OneToMany(mappedBy = "storage", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<HealthProduct> healthProducts = new HashSet<>();
 
     public Storage(LocalDate updatedTimeStamp, int totalAmount, int shelfNumber) {
