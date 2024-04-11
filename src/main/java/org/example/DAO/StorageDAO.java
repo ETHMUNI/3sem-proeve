@@ -6,9 +6,12 @@ import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.Query;
 import org.example.DTO.HealthProductDTO;
 import org.example.DTO.StorageDTO;
+import org.example.Ressources.Storage;
+import org.example.Ressources.HealthProduct;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class StorageDAO implements iDAO<StorageDTO, StorageDTO> {
 
@@ -26,12 +29,27 @@ public class StorageDAO implements iDAO<StorageDTO, StorageDTO> {
         return instance;
     }
 
+    private StorageDTO convertToDTO(Storage storage) {
+        Set<HealthProductDTO> productDTOs = storage.getHealthProducts().stream()
+                .map(p -> new HealthProductDTO(p.getId(), p.getCategory(), p.getName(), p.getCalories(), p.getPrice(), p.getDescription(), p.getExpireDate()))
+                .collect(Collectors.toSet());
+
+        return new StorageDTO(
+                storage.getId(),
+                storage.getUpdatedTimeStamp(),
+                storage.getTotalAmount(),
+                storage.getShelfNumber(),
+                productDTOs
+        );
+    }
+
     @Override
     public Set<StorageDTO> getAll() {
         EntityManager entityManager = emf.createEntityManager();
         try {
-            Query query = entityManager.createQuery("SELECT s FROM Storage s", StorageDTO.class);
-            return new HashSet<>(query.getResultList());
+            Query query = entityManager.createQuery("SELECT s FROM Storage s JOIN FETCH s.healthProducts", Storage.class);
+            Set<Storage> storages = new HashSet<>(query.getResultList());
+            return storages.stream().map(this::convertToDTO).collect(Collectors.toSet());
         } finally {
             entityManager.close();
         }
@@ -41,7 +59,8 @@ public class StorageDAO implements iDAO<StorageDTO, StorageDTO> {
     public StorageDTO getById(int id) {
         EntityManager entityManager = emf.createEntityManager();
         try {
-            return entityManager.find(StorageDTO.class, id);
+            Storage storage = entityManager.find(Storage.class, id);
+            return storage != null ? convertToDTO(storage) : null;
         } finally {
             entityManager.close();
         }
@@ -53,9 +72,13 @@ public class StorageDAO implements iDAO<StorageDTO, StorageDTO> {
         EntityTransaction transaction = entityManager.getTransaction();
         try {
             transaction.begin();
-            entityManager.persist(storageDTO);
+            Storage storage = new Storage();
+            storage.setUpdatedTimeStamp(storageDTO.getUpdatedTimeStamp());
+            storage.setTotalAmount(storageDTO.getTotalAmount());
+            storage.setShelfNumber(storageDTO.getShelfNumber());
+            entityManager.persist(storage);
             transaction.commit();
-            return storageDTO;
+            return convertToDTO(storage);
         } catch (Exception e) {
             if (transaction.isActive()) {
                 transaction.rollback();
@@ -73,9 +96,17 @@ public class StorageDAO implements iDAO<StorageDTO, StorageDTO> {
         EntityTransaction transaction = entityManager.getTransaction();
         try {
             transaction.begin();
-            StorageDTO updatedStorageDTO = entityManager.merge(storageDTO);
-            transaction.commit();
-            return updatedStorageDTO;
+            Storage storage = entityManager.find(Storage.class, storageDTO.getId());
+            if (storage != null) {
+                storage.setUpdatedTimeStamp(storageDTO.getUpdatedTimeStamp());
+                storage.setTotalAmount(storageDTO.getTotalAmount());
+                storage.setShelfNumber(storageDTO.getShelfNumber());
+                entityManager.merge(storage);
+                transaction.commit();
+                return convertToDTO(storage);
+            } else {
+                throw new IllegalArgumentException("Storage not found");
+            }
         } catch (Exception e) {
             if (transaction.isActive()) {
                 transaction.rollback();
@@ -93,11 +124,11 @@ public class StorageDAO implements iDAO<StorageDTO, StorageDTO> {
         EntityTransaction transaction = entityManager.getTransaction();
         try {
             transaction.begin();
-            StorageDTO storageDTO = entityManager.find(StorageDTO.class, id);
-            if (storageDTO != null) {
-                entityManager.remove(storageDTO);
+            Storage storage = entityManager.find(Storage.class, id);
+            if (storage != null) {
+                entityManager.remove(storage);
                 transaction.commit();
-                return storageDTO;
+                return convertToDTO(storage);
             } else {
                 throw new IllegalArgumentException("Storage not found");
             }

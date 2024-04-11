@@ -1,6 +1,5 @@
 package org.example.Ressources;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,9 +7,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -18,27 +15,28 @@ import java.util.Set;
 @Getter
 @Setter
 @ToString
+@Table(name = "storage")
 public class Storage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private int id;
 
-    @Column(nullable = false)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private LocalDateTime updatedTimeStamp;
+    @Column(name = "timestamp", nullable = false)
+    private LocalDate updatedTimeStamp;  // Changed to LocalDate
 
-    @Column(nullable = false)
+    @Column(name = "total_amount", nullable = false)
     private int totalAmount;
 
-    @Column(nullable = false)
+    @Column(name = "shelf_number", nullable = false)
     private int shelfNumber;
 
-    @OneToMany(mappedBy = "storage", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "storage", cascade = CascadeType.ALL, fetch = FetchType.LAZY)  // Changed to LAZY loading
     private Set<HealthProduct> healthProducts = new HashSet<>();
 
     public Storage(LocalDate updatedTimeStamp, int totalAmount, int shelfNumber) {
-        this.updatedTimeStamp = updatedTimeStamp.atStartOfDay();
+        this.updatedTimeStamp = updatedTimeStamp;
         this.totalAmount = totalAmount;
         this.shelfNumber = shelfNumber;
     }

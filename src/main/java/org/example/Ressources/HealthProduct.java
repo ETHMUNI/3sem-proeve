@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.time.LocalDate;
+
 @Entity
 @NoArgsConstructor
 @Getter
@@ -14,33 +16,37 @@ import lombok.ToString;
 public class HealthProduct {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(unique = true)
+    @Column(name = "id", unique = true)
     private int id;
 
-    @Column(nullable = false)
+    @Column(name = "category", nullable = false)
     private String category;
 
-    @Column(nullable = false)
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(name = "calories", nullable = false)
     private int calories;
 
-    @Column(nullable = false)
+    @Column(name = "price", nullable = false)
     private double price;
 
-    @Column(nullable = false)
+    @Column(name = "description", nullable = false)
     private String description;
 
-    @ManyToOne
+    @Column(name = "expire_date")
+    private LocalDate expireDate;  // Added this field
+
+    @ManyToOne(fetch = FetchType.LAZY)  // Set fetching to LAZY
     @JoinColumn(name = "storage_id")
     private Storage storage;
 
-    public HealthProduct(String category, String name, int calories, double price, String description) {
+    public HealthProduct(String category, String name, int calories, double price, String description, LocalDate expireDate) {
         this.category = category;
         this.name = name;
         this.calories = calories;
         this.price = price;
         this.description = description;
+        this.expireDate = expireDate;  // Initialize the new field
     }
 }
