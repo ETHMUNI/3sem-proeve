@@ -1,0 +1,35 @@
+POST http://localhost:7000/api/auth/register
+
+{
+"username": "test1",
+"password": "test123"
+}
+
+###
+
+POST http://localhost:7000/api/auth/login
+
+{
+"username": "test1",
+"password": "test123"
+}
+
+###
+POST http://localhost:7000/api/auth/reset-password
+Authorization: Bearer YOUR_TOKEN_HERE
+
+{
+  "newPassword": "newSecurePassword123"
+}
+
+###
+POST http://localhost:7000/api/auth/logout
+Authorization: Bearer YOUR_TOKEN_HERE
+
+###
+GET http://localhost:7000/api/protected/user_demo
+Authorization: Bearer YOUR_TOKEN_HERE
+
+###
+GET http://localhost:7000/api/protected/admin_demo
+Authorization: Bearer YOUR_TOKEN_HERE
