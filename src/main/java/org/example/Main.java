@@ -1,28 +1,30 @@
 package org.example;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import io.javalin.Javalin;
 import jakarta.persistence.EntityManagerFactory;
-import org.example.Config.ApplicationConfig;
+import org.example.Routes.HealthProductRoutes;
 import org.example.Config.HibernateConfig;
-
-import static org.example.Routes.Routes.getSecuredRoutes;
-import static org.example.Routes.Routes.getSecurityRoutes;
 
 public class Main {
     public static void main(String[] args) {
-        Main.startServer(7000);
-    }
+        // Create the Javalin server
+        Javalin app = Javalin.create(config -> {
+            config.http.defaultContentType = "application/json";
+        });
 
-    public static void startServer(int port) {
-        ObjectMapper om = new ObjectMapper();
-        EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory();
-        ApplicationConfig applicationConfig = ApplicationConfig.getInstance();
-        applicationConfig
-                .initiateServer()
-                .startServer(port)
-                .setExceptionHandling()
-                .setRoute(getSecurityRoutes())
-                .setRoute(getSecuredRoutes())
-                .checkSecurityRoles();
+        EntityManagerFactory emf = HibernateConfig.getEntityManagerFactory(false); // Change to true for testing
+
+        // Populate the database
+        Populator populator = new Populator(emf);
+        populator.populate();
+
+        // Register the routes
+        app.routes(HealthProductRoutes.getHealthProductRoutes());
+
+        app.exception(Exception.class, (e, ctx) -> {
+            ctx.status(500).result("Internal server error: " + e.getMessage());
+        });
+
+        app.start(7000);
     }
 }

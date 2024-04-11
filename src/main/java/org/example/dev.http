@@ -1,0 +1,37 @@
+### Get All Health Products
+GET http://localhost:7000/healthshop/api/healthproducts
+Accept: application/json
+
+### Get Health Product By ID
+# Replace `1` with the actual ID you want to fetch
+GET http://localhost:7000/healthshop/api/healthproducts/1
+Accept: application/json
+
+### Create Health Product
+POST http://localhost:7000/healthshop/api/healthproducts
+Content-Type: application/json
+Accept: application/json
+
+{
+  "id": 6,
+  "category": "Vitamins",
+  "name": "Vitamin C",
+  "calories": 5,
+  "description": "Supports immune system",
+  "price": 12.50
+}
+
+### Update Health Product
+# Replace `1` with the actual ID you want to update
+PUT http://localhost:7000/healthshop/api/healthproducts/6
+Content-Type: application/json
+Accept: application/json
+
+{
+  "category": "Vitamins",
+  "name": "Vitamin D Plus",
+  "calories": 10,
+  "description": "Enhanced formula for bone health",
+  "price": 15.50,
+  "expireDate": "2026-04-11"
+}

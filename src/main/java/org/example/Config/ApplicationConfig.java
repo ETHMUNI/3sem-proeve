@@ -5,17 +5,14 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.javalin.Javalin;
 import io.javalin.apibuilder.EndpointGroup;
 import io.javalin.http.HttpStatus;
-import org.example.DTO.UserDTO;
 import org.example.Exceptions.ApiException;
-import org.example.Handlers.ISecurityHandler;
-import org.example.Handlers.SecurityHandler;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
 public class ApplicationConfig {
     ObjectMapper om = new ObjectMapper();
-    ISecurityHandler securityHandler = new SecurityHandler();
+    //ISecurityHandler securityHandler = new SecurityHandler();
     private Javalin app;
     private static ApplicationConfig instance;
     private ApplicationConfig(){}
@@ -34,7 +31,7 @@ public class ApplicationConfig {
         return instance;
     }
 
-    public ApplicationConfig checkSecurityRoles() {
+    /*public ApplicationConfig checkSecurityRoles() {
         // Check roles on the user (ctx.attribute("username") and compare with permittedRoles using securityController.authorize()
         app.updateConfig(config -> {
 
@@ -62,7 +59,7 @@ public class ApplicationConfig {
             });
         });
         return instance;
-    }
+    }*/
     public ApplicationConfig startServer(int port){
         app.start(port);
         return instance;
