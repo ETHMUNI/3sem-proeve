@@ -33,32 +33,26 @@ public class HealthProductDAO implements iDAO<HealthProductDTO, HealthProductDTO
 
     @Override
     public Set<HealthProductDTO> getAll() {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        try {
+        try (EntityManager entityManager = entityManagerFactory.createEntityManager()) {
             Query query = entityManager.createQuery("SELECT hp FROM HealthProduct hp JOIN FETCH hp.storage", HealthProduct.class);
             Set<HealthProduct> products = new HashSet<>(query.getResultList());
             return products.stream().map(this::convertToDTO).collect(Collectors.toSet());
-        } finally {
-            entityManager.close();
         }
     }
 
     @Override
     public HealthProductDTO getById(int id) {
-        EntityManager entityManager = entityManagerFactory.createEntityManager();
-        try {
+        try (EntityManager entityManager = entityManagerFactory.createEntityManager()) {
             HealthProduct healthProduct = entityManager.find(HealthProduct.class, id);
             return healthProduct != null ? convertToDTO(healthProduct) : null;
-        } finally {
-            entityManager.close();
         }
     }
 
     @Override
     public HealthProductDTO create(HealthProductDTO healthProductDTO) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
-        EntityTransaction transaction = entityManager.getTransaction();
-        try {
+        try (entityManager) {
+            EntityTransaction transaction = entityManager.getTransaction();
             transaction.begin();
             HealthProduct healthProduct = new HealthProduct(
                     healthProductDTO.getCategory(),
@@ -71,22 +65,14 @@ public class HealthProductDAO implements iDAO<HealthProductDTO, HealthProductDTO
             entityManager.persist(healthProduct);
             transaction.commit();
             return convertToDTO(healthProduct);
-        } catch (Exception e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
-            e.printStackTrace();
-            return null;
-        } finally {
-            entityManager.close();
         }
     }
 
     @Override
     public HealthProductDTO update(HealthProductDTO healthProductDTO) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
-        EntityTransaction transaction = entityManager.getTransaction();
-        try {
+        try (entityManager) {
+            EntityTransaction transaction = entityManager.getTransaction();
             transaction.begin();
             HealthProduct healthProduct = entityManager.find(HealthProduct.class, healthProductDTO.getId());
             if (healthProduct != null) {
@@ -100,22 +86,14 @@ public class HealthProductDAO implements iDAO<HealthProductDTO, HealthProductDTO
             }
             transaction.commit();
             return convertToDTO(healthProduct);
-        } catch (Exception e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
-            e.printStackTrace();
-            return null;
-        } finally {
-            entityManager.close();
         }
     }
 
     @Override
     public HealthProductDTO delete(int id) {
         EntityManager entityManager = entityManagerFactory.createEntityManager();
-        EntityTransaction transaction = entityManager.getTransaction();
-        try {
+        try (entityManager) {
+            EntityTransaction transaction = entityManager.getTransaction();
             transaction.begin();
             HealthProduct healthProduct = entityManager.find(HealthProduct.class, id);
             if (healthProduct != null) {
@@ -125,14 +103,6 @@ public class HealthProductDAO implements iDAO<HealthProductDTO, HealthProductDTO
             } else {
                 throw new IllegalArgumentException("Health product not found");
             }
-        } catch (Exception e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
-            e.printStackTrace();
-            return null;
-        } finally {
-            entityManager.close();
         }
     }
 }

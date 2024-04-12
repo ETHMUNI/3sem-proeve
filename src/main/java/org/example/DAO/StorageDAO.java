@@ -45,32 +45,26 @@ public class StorageDAO implements iDAO<StorageDTO, StorageDTO> {
 
     @Override
     public Set<StorageDTO> getAll() {
-        EntityManager entityManager = emf.createEntityManager();
-        try {
+        try (EntityManager entityManager = emf.createEntityManager()) {
             Query query = entityManager.createQuery("SELECT s FROM Storage s JOIN FETCH s.healthProducts", Storage.class);
             Set<Storage> storages = new HashSet<>(query.getResultList());
             return storages.stream().map(this::convertToDTO).collect(Collectors.toSet());
-        } finally {
-            entityManager.close();
         }
     }
 
     @Override
     public StorageDTO getById(int id) {
-        EntityManager entityManager = emf.createEntityManager();
-        try {
+        try (EntityManager entityManager = emf.createEntityManager()) {
             Storage storage = entityManager.find(Storage.class, id);
             return storage != null ? convertToDTO(storage) : null;
-        } finally {
-            entityManager.close();
         }
     }
 
     @Override
     public StorageDTO create(StorageDTO storageDTO) {
         EntityManager entityManager = emf.createEntityManager();
-        EntityTransaction transaction = entityManager.getTransaction();
-        try {
+        try (entityManager) {
+            EntityTransaction transaction = entityManager.getTransaction();
             transaction.begin();
             Storage storage = new Storage();
             storage.setUpdatedTimeStamp(storageDTO.getUpdatedTimeStamp());
@@ -79,22 +73,14 @@ public class StorageDAO implements iDAO<StorageDTO, StorageDTO> {
             entityManager.persist(storage);
             transaction.commit();
             return convertToDTO(storage);
-        } catch (Exception e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
-            e.printStackTrace();
-            return null;
-        } finally {
-            entityManager.close();
         }
     }
 
     @Override
     public StorageDTO update(StorageDTO storageDTO) {
         EntityManager entityManager = emf.createEntityManager();
-        EntityTransaction transaction = entityManager.getTransaction();
-        try {
+        try (entityManager) {
+            EntityTransaction transaction = entityManager.getTransaction();
             transaction.begin();
             Storage storage = entityManager.find(Storage.class, storageDTO.getId());
             if (storage != null) {
@@ -107,22 +93,14 @@ public class StorageDAO implements iDAO<StorageDTO, StorageDTO> {
             } else {
                 throw new IllegalArgumentException("Storage not found");
             }
-        } catch (Exception e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
-            e.printStackTrace();
-            return null;
-        } finally {
-            entityManager.close();
         }
     }
 
     @Override
     public StorageDTO delete(int id) {
         EntityManager entityManager = emf.createEntityManager();
-        EntityTransaction transaction = entityManager.getTransaction();
-        try {
+        try (entityManager) {
+            EntityTransaction transaction = entityManager.getTransaction();
             transaction.begin();
             Storage storage = entityManager.find(Storage.class, id);
             if (storage != null) {
@@ -132,14 +110,6 @@ public class StorageDAO implements iDAO<StorageDTO, StorageDTO> {
             } else {
                 throw new IllegalArgumentException("Storage not found");
             }
-        } catch (Exception e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
-            e.printStackTrace();
-            return null;
-        } finally {
-            entityManager.close();
         }
     }
 }
