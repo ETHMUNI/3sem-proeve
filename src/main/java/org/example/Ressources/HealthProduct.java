@@ -13,6 +13,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @ToString
+@Table(name = "healthproduct")
 public class HealthProduct {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
